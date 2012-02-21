@@ -200,7 +200,7 @@ lcdClear = exports.lcdClear = function()
 //      lcdScrollLength(string) - returns number to scroll string one time off screen
 //
 
-var scrollPosition = -10;   // internal storage for scroll routines
+var scrollPosition = [-10, -10, -10, -10, -10, -10] ;   // internal storage for scroll routines
 
 lcdScrollLength = exports.lcdScrollLength = function(array)
 {
@@ -211,7 +211,7 @@ lcdScrollInit = exports.lcdScrollInit = function(row)
 {
   var i;
   lcdGotoXY(4,row);
-  scrollPosition = -10;
+  scrollPosition[row] = -10;
   for (i=0; i<11; i++)
       lcdCharacter(' ');
 }
@@ -220,7 +220,7 @@ lcdScroll = exports.lcdScroll = function( row ,message )
 {
   var i;
   lcdGotoXY(4,row);
-  for (i = scrollPosition; i < scrollPosition + 11; i++)
+  for (i = scrollPosition[row]; i < scrollPosition[row] + 11; i++)
   {
     if ((i >= message.length) || (i < 0))
     {
@@ -231,10 +231,10 @@ lcdScroll = exports.lcdScroll = function( row ,message )
       lcdCharacter(message.charAt(i));
     }
   }
-  scrollPosition++;
-  if ((scrollPosition >= message.length) && (scrollPosition > 0))
+  scrollPosition[row]++;
+  if ((scrollPosition[row] >= message.length) && (scrollPosition[row] > 0))
   {
-    scrollPosition = -10;
+    scrollPosition[row] = -10;
   }
 }
 
