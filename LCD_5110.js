@@ -244,14 +244,14 @@ lcdScroll = exports.lcdScroll = function( row ,message )
 //      lcdProgressBar(row, value)  -  draws a progress bar of value length
 //                                     value from 0 to 100
 //
-var curProgress = 0;   // internal storage for progress bar routines
+var curProgress = [0,0,0,0,0,0];   // internal storage for progress bar routines
 lcdProgressInit = exports.lcdProgressInit = function (row)
 {
     var index;
     lcdGotoXY(0,row);
     for(index = 0; index<12; index++)
         lcdCharacter(' ');
-    curProgress = 0;
+    curProgress[row] = 0;
 }
 
 lcdProgressBar = exports.lcdProgressBar = function (row, value)
@@ -264,19 +264,19 @@ lcdProgressBar = exports.lcdProgressBar = function (row, value)
       else if (value<0) value =0;
     
     lcdGotoXY(2,row);
-    if (value > curProgress)
+    if (value > curProgress[row])
     {
-       lcdGotoXY(2+curProgress,row);
-       for(index = curProgress; index < value; index++)
+       lcdGotoXY(2+curProgress[row],row);
+       for(index = curProgress[row]; index < value; index++)
           lcdWrite(LCD_DATA, 0x7e);
-    } else if (value < curProgress)
+    } else if (value < curProgress[row])
     {
        lcdGotoXY(2+value,row);
-       for(index = value; index<curProgress; index++)
+       for(index = value; index<curProgress[row]; index++)
           lcdWrite(LCD_DATA, 0x00);
     }
 
-    curProgress = value;
+    curProgress[row] = value;
 }
 
 //
