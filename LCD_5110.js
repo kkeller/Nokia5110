@@ -62,7 +62,7 @@ shiftOut = function(dataPin, clockPin, bitOrder, val)
     digitalWrite(clockPin, HIGH);
     digitalWrite(clockPin, LOW);            
   }
-}
+};
 
 //
 // lcdSetup ()
@@ -102,7 +102,7 @@ lcdWrite = exports.lcdWrite = function(dataORcommand, data)
     digitalWrite(PIN_SCE, LOW);
     shiftOut(PIN_SDIN, PIN_SCLK, MSBFIRST, data);
     digitalWrite(PIN_SCE, HIGH);
-}
+};
 
 //
 // lcdGotoXY( column,  row)
@@ -112,7 +112,7 @@ lcdGotoXY = exports.lcdGotoXY = function( x,  y)
 {
    lcdWrite(LCD_COMMAND, 0x80 | x);  // Column
    lcdWrite(LCD_COMMAND, 0x40 | y);  // Row
-}
+};
 
 //
 // lcdInverse(mode)
@@ -127,7 +127,7 @@ lcdInverse = exports.lcdInverse = function(invert)
     {
         lcdWrite(LCD_COMMAND, 0x0C);  //set normal mode
     }
-}
+};
 
 //
 // lcdBitmap(array)
@@ -140,7 +140,7 @@ lcdBitmap = exports.lcdBitmap = function(array)
   if (array.length < amt) amt = array.length;
   for (index = 0 ; index < amt ; index++)
      lcdWrite(LCD_DATA, array[index]);
-}
+};
 
 
 //
@@ -162,7 +162,7 @@ lcdCharacter = exports.lcdCharacter = function(character)
 
   if (char != 0x7f) lcdWrite(LCD_DATA, 0x00); //Blank vertical line padding
      else lcdWrite(LCD_DATA, 0xff);           // make total black pixel
-}
+};
 
 //
 // lcdString(string)
@@ -175,7 +175,7 @@ lcdString = exports.lcdString = function(characters)
   {
       lcdCharacter(characters[index]);
   }
-}
+};
 
 //
 // lcdClear()
@@ -191,7 +191,7 @@ lcdClear = exports.lcdClear = function()
   for (index = 0 ; index < amt ; index++)
      lcdWrite(LCD_DATA, 0x00);
   lcdGotoXY(0, 0);     //Always start at home
-}
+};
 
 //
 //  Scroll routines:   (scrolls happen on one row between (4,row) and (82,row)
@@ -205,7 +205,7 @@ var scrollPosition = [-10, -10, -10, -10, -10, -10] ;   // internal storage for 
 lcdScrollLength = exports.lcdScrollLength = function(array)
 {
     return (array.length +10);
-}
+};
 
 lcdScrollInit = exports.lcdScrollInit = function(row)
 {
@@ -214,7 +214,7 @@ lcdScrollInit = exports.lcdScrollInit = function(row)
   scrollPosition[row] = -10;
   for (i=0; i<11; i++)
       lcdCharacter(' ');
-}
+};
 
 lcdScroll = exports.lcdScroll = function( row ,message )
 {
@@ -236,7 +236,7 @@ lcdScroll = exports.lcdScroll = function( row ,message )
   {
     scrollPosition[row] = -10;
   }
-}
+};
 
 //
 //  Progress Bar Routines
@@ -252,7 +252,7 @@ lcdProgressInit = exports.lcdProgressInit = function (row)
     for(index = 0; index<12; index++)
         lcdCharacter(' ');
     curProgress[row] = 0;
-}
+};
 
 lcdProgressBar = exports.lcdProgressBar = function (row, value)
 {
@@ -277,7 +277,7 @@ lcdProgressBar = exports.lcdProgressBar = function (row, value)
     }
 
     curProgress[row] = value;
-}
+};
 
 //
 // ASCII bitmaps...
