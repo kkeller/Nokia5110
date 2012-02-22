@@ -35,11 +35,11 @@ FUNCTIONS:
 
 //
 // lcdSetup ()
-//     reset lcd ancd set up set up display contrast and bias
+//     reset lcd and set up set up display contrast and bias
 //
 //
 // lcdWrite(dataORcommand, data)
-//      Write dataor command to lcd
+//      Write data or command to lcd
 //
 //
 // lcdGotoXY( column,  row)
@@ -73,7 +73,7 @@ FUNCTIONS:
 //      lcdScrollLength(string) - returns number to scroll string one time off screen
 //
 //
-//  Progress Bar Routines:  (Progress Bar happens between (2,row0 and (82,row)
+//  Progress Bar Routines:  (Progress Bar happens between (2,row) and (82,row)
 //      lcdProgressInit(row)  -  clears the scroll area and init local vars
 //      lcdProgressBar(row, value)  -  draws a progress bar of value length
 //                                     value from 0 to 100
