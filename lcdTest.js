@@ -2,7 +2,8 @@
 // Copyright (C) 2012 - Cabin Programs, Ken Keller 
 //
 
-var lcd = require('./LCD_5110.js');
+var lcd = require('./LCD_5110');
+var b = require('bonescript');
 
 //
 //  Must define the following outputs to use LCD_5110.js
@@ -14,8 +15,11 @@ PIN_SCE = "P9_17";
 PIN_RESET = "P9_16";
 
 lcdSetup();
-
-loop();
+console.log(PIN_SCLK + ": " + JSON.stringify(b.getPinMode(PIN_SCLK)));
+console.log(PIN_SDIN + ": " + JSON.stringify(b.getPinMode(PIN_SDIN)));
+console.log(PIN_DC + ": " + JSON.stringify(b.getPinMode(PIN_DC)));
+console.log(PIN_SCE + ": " + JSON.stringify(b.getPinMode(PIN_SCE)));
+console.log(PIN_RESET + ": " + JSON.stringify(b.getPinMode(PIN_RESET)));
 
 function loop() {
 // test bitmap write
@@ -213,4 +217,5 @@ var world_map = [
  0x00, 0x00, 0x00, 0x00, 0x06, 0x0E, 0x0F, 0x0F, 0x0F, 0x0F, 0x1F, 0x5E, 0x0C, 0x00, 0x00,
  0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ]; 
 
+loop();
 
