@@ -41,11 +41,11 @@ var LCD_DATA = exports.LCD_DATA = 1;
 //
 exports.setup = function() 
 {
-    console.log("PIN_SCLK = " + this.PIN_SCLK);
-    console.log("PIN_SDIN = " + this.PIN_SDIN);
-    console.log("PIN_DC = " + this.PIN_DC);
-    console.log("PIN_SCE = " + this.PIN_SCE);
-    console.log("PIN_RESET = " + this.PIN_RESET);
+    //console.log("PIN_SCLK = " + this.PIN_SCLK);
+    //console.log("PIN_SDIN = " + this.PIN_SDIN);
+    //console.log("PIN_DC = " + this.PIN_DC);
+    //console.log("PIN_SCE = " + this.PIN_SCE);
+    //console.log("PIN_RESET = " + this.PIN_RESET);
 
     b.pinMode(this.PIN_SCLK, b.OUTPUT);
     b.pinMode(this.PIN_SDIN, b.OUTPUT);
