@@ -24,19 +24,28 @@ function loop() {
     lcdClear();
     lcdBitmap(beagle);
 
-    setTimeout(loop1, 1000);
+    setTimeout(loop0, 1000);
+}
+
+var inverseIndex = 0;
+function loop0() {
+// test inverse video
+    if(inverseIndex % 2) {
+         lcdInverse(LCD_INVERSE);
+    } else {
+         lcdInverse(LCD_NORMAL);
+    }
+
+    inverseIndex++;
+
+    if(inverseIndex < 20) {
+        setTimeout(loop0, 50);
+    } else {
+        setTimeout(loop1, 50);
+    }
 }
 
 function loop1() {
-// test inverse video
-    for (index = 0; index <10; index++)
-    {
-         lcdInverse(LCD_INVERSE);
-         delay(50);
-         lcdInverse(LCD_NORMAL);
-         delay(50);
-    }
-
 // test normal character write
     lcdClear();
     for ( index = 0x41 ; index < 0x7b ; index++)
