@@ -5,7 +5,7 @@
 // and http://blog.stuartlewis.com/2011/02/12/scrolling-text-with-an-arduino-and-nokia-5110-screen/
 //
 
-var bb = require('./bonescript');
+var b = require('bonescript');
 
 //
 //  Must define the following outputs in your program to use LCD_5110.js
@@ -36,49 +36,20 @@ LCD_COMMAND = exports.LCD_COMMAND = 0;
 LCD_DATA = exports.LCD_DATA = 1;
 
 //
-// used in: shiftOut(dataPin, clockPin, bitOrder, val)
-//
-LSBFIRST = 1;
-MSBFIRST = 0;
-
-//
-// shiftOut(dataPin, clockPin, bitOrder, val)
-//
-shiftOut = function(dataPin, clockPin, bitOrder, val)
-{
-  var i;
-  var bit;
-  for (i = 0; i < 8; i++)  
-  {
-    if (bitOrder == LSBFIRST) 
-    {
-         bit = val & (1 << i);
-    } else
-    {
-         bit = val & (1 << (7 - i));
-    }
-
-    digitalWrite(dataPin, bit);
-    digitalWrite(clockPin, HIGH);
-    digitalWrite(clockPin, LOW);            
-  }
-};
-
-//
 // lcdSetup ()
 //     reset lcd ancd set up set up display contrast and bias
 //
 lcdSetup = exports.lcdSetup = function() 
 {
-    pinMode(PIN_SCLK, OUTPUT);
-    pinMode(PIN_SDIN, OUTPUT);
-    pinMode(PIN_DC, OUTPUT);
-    pinMode(PIN_SCE, OUTPUT);
-    pinMode(PIN_RESET, OUTPUT);
+    b.pinMode(PIN_SCLK, b.OUTPUT);
+    b.pinMode(PIN_SDIN, b.OUTPUT);
+    b.pinMode(PIN_DC, b.OUTPUT);
+    b.pinMode(PIN_SCE, b.OUTPUT);
+    b.pinMode(PIN_RESET, b.OUTPUT);
 
     //Reset the LCD to a known state
-    digitalWrite(PIN_RESET, LOW);
-    digitalWrite(PIN_RESET, HIGH);
+    b.digitalWrite(PIN_RESET, b.LOW);
+    b.digitalWrite(PIN_RESET, b.HIGH);
 
     lcdWrite(LCD_COMMAND, 0x21); 
     lcdWrite(LCD_COMMAND, 0xB1); 
@@ -96,12 +67,12 @@ lcdSetup = exports.lcdSetup = function()
 //
 lcdWrite = exports.lcdWrite = function(dataORcommand, data) 
 {
-    digitalWrite(PIN_DC, dataORcommand); //Tell the LCD that we are writing either to data or a command
+    b.digitalWrite(PIN_DC, dataORcommand); //Tell the LCD that we are writing either to data or a command
 
     //Send the data
-    digitalWrite(PIN_SCE, LOW);
-    shiftOut(PIN_SDIN, PIN_SCLK, MSBFIRST, data);
-    digitalWrite(PIN_SCE, HIGH);
+    b.digitalWrite(PIN_SCE, b.LOW);
+    b.shiftOut(PIN_SDIN, PIN_SCLK, b.MSBFIRST, data);
+    b.digitalWrite(PIN_SCE, b.HIGH);
 };
 
 //

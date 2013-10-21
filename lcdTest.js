@@ -2,34 +2,33 @@
 // Copyright (C) 2012 - Cabin Programs, Ken Keller 
 //
 
-var bb = require('./bonescript');
 var lcd = require('./LCD_5110.js');
 
 //
 //  Must define the following outputs to use LCD_5110.js
 //
-PIN_SCLK = exports.PIN_SCLK = bone.P8_5;
-PIN_SDIN = exports.PIN_SDIN = bone.P8_3;
-PIN_DC = exports.PIN_DC = bone.P8_12;
-PIN_SCE = exports.PIN_SCE = bone.P8_6;
-PIN_RESET = exports.PIN_RESET = bone.P8_11;
+PIN_SCLK = "P8_5";
+PIN_SDIN = "P8_3";
+PIN_DC = "P8_12";
+PIN_SCE = "P8_6";
+PIN_RESET = "P8_11";
 
-setup = function() 
-{
-    //Reset and set up LCD 
-    lcdSetup();
-};
+lcdSetup();
 
-loop = function() {
+loop();
 
+function loop() {
     var index;
 
-//  test bitmap write
+// test bitmap write
     lcdClear();
     lcdBitmap(beagle);
 
+    setTimeout(loop1, 1000);
+}
+
+function loop1() {
 // test inverse video
-    delay(1000);
     for (index = 0; index <10; index++)
     {
          lcdInverse(LCD_INVERSE);
@@ -43,13 +42,19 @@ loop = function() {
     for ( index = 0x41 ; index < 0x7b ; index++)
         lcdCharacter(String.fromCharCode(index));
 
-    delay(2000);
+    setTimeout(loop2, 2000);
 
+function loop2() {
 // test bitmap and string write
     lcdClear();
     lcdBitmap(world_map);
 
-    delay(1000);
+    setTimout(loop3, 1000);
+}
+
+function loop3() {
+    var index;
+
     for (index=0; index<5; index++)
     {
         lcdGotoXY(0, 3);
@@ -58,7 +63,11 @@ loop = function() {
         lcdString('hello world!');
     }
 
-    delay(1000);
+    setTimeout(loop4, 1000);
+}
+
+function loop4() {
+    var index;
 
 // test solid block character 
     lcdClear();
@@ -76,7 +85,12 @@ loop = function() {
         lcdScroll(3,theTEXT);
     }
     lcdScrollInit(3);  // used to clear row
-    delay(2000);
+
+    setTimeout(loop5, 2000);
+}
+
+function loop5() {
+    var index;
 
 //  Progress Bar test
     lcdGotoXY(0,0);
@@ -93,13 +107,8 @@ loop = function() {
     for (index=100; index>=0; index-=6)
       lcdProgressBar(2,index);
 
-    delay(2000);
-
-    lcdClear();
-
-};
-
-bb.run( );
+    setTimeout(loop, 2000);
+}
 
 var beagle = [
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
