@@ -7,19 +7,17 @@ var lcd = require('./LCD_5110.js');
 //
 //  Must define the following outputs to use LCD_5110.js
 //
-PIN_SCLK = "P8_5";
-PIN_SDIN = "P8_3";
-PIN_DC = "P8_12";
-PIN_SCE = "P8_6";
-PIN_RESET = "P8_11";
+PIN_SCLK = "P9_22";
+PIN_SDIN = "P9_21";
+PIN_DC = "P9_15";
+PIN_SCE = "P9_17";
+PIN_RESET = "P9_16";
 
 lcdSetup();
 
 loop();
 
 function loop() {
-    var index;
-
 // test bitmap write
     lcdClear();
     lcdBitmap(beagle);
