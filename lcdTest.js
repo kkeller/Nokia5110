@@ -54,6 +54,7 @@ function loop1() {
         lcdCharacter(String.fromCharCode(index));
 
     setTimeout(loop2, 2000);
+}
 
 function loop2() {
 // test bitmap and string write
