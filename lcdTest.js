@@ -8,23 +8,18 @@ var b = require('bonescript');
 //
 //  Must define the following outputs to use LCD_5110.js
 //
-PIN_SDIN = "P9_21";
-PIN_SCLK = "P9_22";
-PIN_SCE = "P9_23";
-PIN_DC = "P9_24";
-PIN_RESET = "P9_25";
+lcd.PIN_SDIN = "P9_21";
+lcd.PIN_SCLK = "P9_22";
+lcd.PIN_SCE = "P9_23";
+lcd.PIN_DC = "P9_24";
+lcd.PIN_RESET = "P9_25";
 
-lcdSetup();
-console.log(PIN_SCLK + ": " + JSON.stringify(b.getPinMode(PIN_SCLK)));
-console.log(PIN_SDIN + ": " + JSON.stringify(b.getPinMode(PIN_SDIN)));
-console.log(PIN_DC + ": " + JSON.stringify(b.getPinMode(PIN_DC)));
-console.log(PIN_SCE + ": " + JSON.stringify(b.getPinMode(PIN_SCE)));
-console.log(PIN_RESET + ": " + JSON.stringify(b.getPinMode(PIN_RESET)));
+lcd.setup();
 
 function loop() {
 // test bitmap write
-    lcdClear();
-    lcdBitmap(beagle);
+    lcd.clear();
+    lcd.bitmap(beagle);
 
     setTimeout(loop0, 1000);
 }
@@ -33,14 +28,14 @@ var inverseIndex = 0;
 function loop0() {
 // test inverse video
     if(inverseIndex % 2) {
-         lcdInverse(LCD_INVERSE);
+         lcd.inverse(lcd.LCD_INVERSE);
     } else {
-         lcdInverse(LCD_NORMAL);
+         lcd.inverse(lcd.LCD_NORMAL);
     }
 
     inverseIndex++;
 
-    if(inverseIndex < 20) {
+    if(inverseIndex < 19) {
         setTimeout(loop0, 50);
     } else {
         setTimeout(loop1, 50);
@@ -49,19 +44,19 @@ function loop0() {
 
 function loop1() {
 // test normal character write
-    lcdClear();
+    lcd.clear();
     for ( index = 0x41 ; index < 0x7b ; index++)
-        lcdCharacter(String.fromCharCode(index));
+        lcd.character(String.fromCharCode(index));
 
     setTimeout(loop2, 2000);
 }
 
 function loop2() {
 // test bitmap and string write
-    lcdClear();
-    lcdBitmap(world_map);
+    lcd.clear();
+    lcd.bitmap(world_map);
 
-    setTimout(loop3, 1000);
+    setTimeout(loop3, 1000);
 }
 
 function loop3() {
@@ -69,10 +64,10 @@ function loop3() {
 
     for (index=0; index<5; index++)
     {
-        lcdGotoXY(0, 3);
-        lcdString('HELLO WORLD!');
-        lcdGotoXY(0, 3);
-        lcdString('hello world!');
+        lcd.gotoXY(0, 3);
+        lcd.string('HELLO WORLD!');
+        lcd.gotoXY(0, 3);
+        lcd.string('hello world!');
     }
 
     setTimeout(loop4, 1000);
@@ -82,21 +77,21 @@ function loop4() {
     var index;
 
 // test solid block character 
-    lcdClear();
+    lcd.clear();
     for ( index = 0 ; index < 72 ; index++)
-        lcdCharacter(String.fromCharCode(0x7f));
+        lcd.character(String.fromCharCode(0x7f));
 
 // Scrolling text test
-    lcdClear();
+    lcd.clear();
     var theTEXT = "Scroll text...";
-    var numScrolls = lcdScrollLength(theTEXT) * 2;
+    var numScrolls = lcd.scrollLength(theTEXT) * 2;
     
-    lcdScrollInit(3);
+    lcd.scrollInit(3);
     for (index=0; index<numScrolls; index++)
     {
-        lcdScroll(3,theTEXT);
+        lcd.scroll(3,theTEXT);
     }
-    lcdScrollInit(3);  // used to clear row
+    lcd.scrollInit(3);  // used to clear row
 
     setTimeout(loop5, 2000);
 }
@@ -105,19 +100,19 @@ function loop5() {
     var index;
 
 //  Progress Bar test
-    lcdGotoXY(0,0);
-    lcdString("Progress Bar");
+    lcd.gotoXY(0,0);
+    lcd.string("Progress Bar");
 
-    lcdProgressInit(2);
+    lcd.progressInit(2);
     for (index=0; index<101; index+=2)
-      lcdProgressBar(2,index);
+      lcd.progressBar(2,index);
 
     for (index=100; index>=0; index-=2)
-      lcdProgressBar(2,index);
+      lcd.progressBar(2,index);
 
-    lcdProgressInit(2);
+    lcd.progressInit(2);
     for (index=100; index>=0; index-=6)
-      lcdProgressBar(2,index);
+      lcd.progressBar(2,index);
 
     setTimeout(loop, 2000);
 }
