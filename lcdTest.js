@@ -8,11 +8,11 @@ var b = require('bonescript');
 //
 //  Must define the following outputs to use LCD_5110.js
 //
-PIN_SCLK = "P9_22";
 PIN_SDIN = "P9_21";
-PIN_DC = "P9_15";
-PIN_SCE = "P9_17";
-PIN_RESET = "P9_16";
+PIN_SCLK = "P9_22";
+PIN_SCE = "P9_23";
+PIN_DC = "P9_24";
+PIN_RESET = "P9_25";
 
 lcdSetup();
 console.log(PIN_SCLK + ": " + JSON.stringify(b.getPinMode(PIN_SCLK)));
