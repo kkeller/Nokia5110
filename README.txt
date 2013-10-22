@@ -5,77 +5,78 @@ HISTORY:
 SUMMARY:
 ========
 This is a set of bonescript files that where written to control a
-Nokia 5110 LCD display from Adafruit.
+Nokia 5110 LCD display from Adafruit or Sparkfun.
 
       http://www.adafruit.com/products/338
+      https://www.sparkfun.com/products/10168
 
 
 USE:
 ====
 
-1) Download the LCD_51100.js file and put it at the same level as the calling program.
+1) Download the LCD_5110.js file and put it at the same level as the calling program.
 2) To use these routines, put the following in your program:
 
 	var lcd = require('./LCD_5110.js');
 
 3) Define the digital outputs used to control the LCD:
 
-	PIN_SCLK  = exports.PIN_SCLK  = bone.P?_?;
-	PIN_SDIN  = exports.PIN_SDIN  = bone.P?_?;
-	PIN_DC    = exports.PIN_DC    = bone.P?_?;
-	PIN_SCE   = exports.PIN_SCE   = bone.P?_?;
-	PIN_RESET = exports.PIN_RESET = bone.P?_?;
+	lcd.PIN_SCLK  = "P?_?";
+	lcd.PIN_SDIN  = "P?_?";
+	lcd.PIN_DC    = "P?_?";
+	lcd.PIN_SCE   = "P?_?";
+	lcd.PIN_RESET = "P?_?";
 
-4) Call lcdSetup() in your setup function:
+4) Call setup():
 
-	lcdSetup();
+	lcd.setup();
 
 FUNCTIONS:
 ==========
 
 //
-// lcdSetup ()
+// setup ()
 //     reset lcd and set up set up display contrast and bias
 //
 //
-// lcdWrite(dataORcommand, data)
+// write(dataORcommand, data)
 //      Write data or command to lcd
 //
 //
-// lcdGotoXY( column,  row)
+// gotoXY( column,  row)
 //     set current lcd position to row/column
 //
 //
-// lcdInverse(mode)
+// inverse(mode)
 //    turn inverse mode on or off
 //
 //
-// lcdBitmap(array)
+// bitmap(array)
 //    send bitmap to LCD at current position
 //
 //
-// lcdCharacter(char)
+// character(char)
 //    outputs ASCII char (0x20 - 0x7f) at current position
 //
 //
-// lcdString(string)
+// string(string)
 //    outputs ASCII string (0x20 - 0x7f) at current position
 //
 //
-// lcdClear()
+// clear()
 //     clears lcd by sending spaces to the entire display
 //     leaves current position at (0,0)
 //
 //
 //  Scroll routines:   (scrolls happen on one row between (4,row) and (82,row)
-//      lcdScrollInit(row)  -  clears the scroll area and init local vars
-//      lcdScroll(row, string)  -  scrolls string one char, repeat call to scroll again
-//      lcdScrollLength(string) - returns number to scroll string one time off screen
+//      scrollInit(row)  -  clears the scroll area and init local vars
+//      scroll(row, string)  -  scrolls string one char, repeat call to scroll again
+//      scrollLength(string) - returns number to scroll string one time off screen
 //
 //
 //  Progress Bar Routines:  (Progress Bar happens between (2,row) and (82,row)
-//      lcdProgressInit(row)  -  clears the scroll area and init local vars
-//      lcdProgressBar(row, value)  -  draws a progress bar of value length
+//      progressInit(row)  -  clears the scroll area and init local vars
+//      progressBar(row, value)  -  draws a progress bar of value length
 //                                     value from 0 to 100
 //
 

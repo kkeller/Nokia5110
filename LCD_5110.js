@@ -57,12 +57,12 @@ exports.setup = function()
     b.digitalWrite(this.PIN_RESET, b.LOW);
     b.digitalWrite(this.PIN_RESET, b.HIGH);
 
-    exports.write(LCD_COMMAND, 0x21); 
-    exports.write(LCD_COMMAND, 0xB1); 
-    exports.write(LCD_COMMAND, 0x04); 
-    exports.write(LCD_COMMAND, 0x15); 
+    exports.write(LCD_COMMAND, 0x21, true); 
+    exports.write(LCD_COMMAND, 0xB1, true); 
+    exports.write(LCD_COMMAND, 0x04, true); 
+    exports.write(LCD_COMMAND, 0x15, true); 
 
-    exports.write(LCD_COMMAND, 0x20); 
+    exports.write(LCD_COMMAND, 0x20, true); 
     exports.write(LCD_COMMAND, 0x0C); 
 };
 
@@ -70,25 +70,55 @@ exports.setup = function()
 // lcdWrite(dataORcommand, data)
 //      Write dataor command to lcd
 //
-exports.write = function(dataORcommand, data) 
+var lastDC = undefined;
+var lastSCE = undefined;
+exports.write = function(dataORcommand, data, backToBack) 
 {
+    //backToBack = false;
     //console.log("write("+dataORcommand+","+data+")");
-    b.digitalWrite(this.PIN_DC, dataORcommand); //Tell the LCD that we are writing either to data or a command
+    if(lastDC != dataORcommand) {
+        b.digitalWrite(this.PIN_DC, dataORcommand); //Tell the LCD that we are writing either to data or a command
+        lastDC = dataORcommand;
+    }
+
+    if(dataORcommand == LCD_DATA) {
+        if(typeof lastX !== 'undefined' && typeof lastY !== 'undefined') {
+            lastX++;
+            if(lastX == LCD_X) {
+                lastX = 0;
+                lastY++;
+                if(lastY == LCD_Y) lastY = 0;
+            }
+        }
+    }
 
     //Send the data
-    b.digitalWrite(this.PIN_SCE, b.LOW);
+    if(!backToBack || lastSCE != b.LOW) {
+        b.digitalWrite(this.PIN_SCE, b.LOW);
+    }
     b.shiftOut(this.PIN_SDIN, this.PIN_SCLK, b.MSBFIRST, data);
-    b.digitalWrite(this.PIN_SCE, b.HIGH);
+    if(!backToBack) {
+        b.digitalWrite(this.PIN_SCE, b.HIGH);
+        lastSCE = b.HIGH;
+    }
 };
 
 //
-// lcdGotoXY( column,  row)
+// lcdGotoXY(column, row)
 //     set current lcd position to row/column
 //
-exports.gotoXY = function( x,  y) 
+var lastX = undefined;
+var lastY = undefined;
+exports.gotoXY = function(x, y, backToBack) 
 {
-   exports.write(LCD_COMMAND, 0x80 | x);  // Column
-   exports.write(LCD_COMMAND, 0x40 | y);  // Row
+    if(x != lastX) {
+        exports.write(LCD_COMMAND, 0x80 | x, backToBack || y != lastY);  // Column
+        lastX = x;
+    }
+    if(y != lastY) {
+        exports.write(LCD_COMMAND, 0x40 | y, backToBack);  // Row
+        lastY = y;
+    }
 };
 
 //
@@ -116,7 +146,7 @@ exports.bitmap = function(array)
   var amt = (LCD_X * LCD_Y ) / 8;
   if (array.length < amt) amt = array.length;
   for (index = 0 ; index < amt ; index++)
-     exports.write(LCD_DATA, array[index]);
+     exports.write(LCD_DATA, array[index], index - 1 < amt);
 };
 
 
@@ -124,21 +154,21 @@ exports.bitmap = function(array)
 // lcdCharacter(char)
 //    outputs ASCII char (0x20 - 0x7f) at current position
 //
-exports.character = function(character) 
+exports.character = function(character, backToBack) 
 {
   var index;
   var char;
 
   char = character.charCodeAt(0);
 
-  if (char != 0x7f) exports.write(LCD_DATA, 0x00); //Blank vertical line padding
-     else exports.write(LCD_DATA, 0xff);           // make total black pixel
+  if (char != 0x7f) exports.write(LCD_DATA, 0x00, true); //Blank vertical line padding
+     else exports.write(LCD_DATA, 0xff, true);           // make total black pixel
 
   for ( index = 0 ; index < 5 ; index++)
-     exports.write(LCD_DATA, ascii[((char-0x20)*5)+index]);
+     exports.write(LCD_DATA, ascii[((char-0x20)*5)+index], true);
 
-  if (char != 0x7f) exports.write(LCD_DATA, 0x00); //Blank vertical line padding
-     else exports.write(LCD_DATA, 0xff);           // make total black pixel
+  if (char != 0x7f) exports.write(LCD_DATA, 0x00, backToBack); //Blank vertical line padding
+     else exports.write(LCD_DATA, 0xff, backToBack);           // make total black pixel
 };
 
 //
@@ -150,7 +180,7 @@ exports.string = function(characters)
   var index;
   for ( index = 0 ; index < characters.length ; index++)
   {
-      exports.character(characters[index]);
+      exports.character(characters[index], index-1<characters.length);
   }
 };
 
@@ -163,10 +193,10 @@ exports.clear = function()
 {
   var index;
   var amt;
-  exports.gotoXY(0, 0);
+  exports.gotoXY(0, 0, true);
   amt = (LCD_X * LCD_Y ) / 8
   for (index = 0 ; index < amt ; index++)
-     exports.write(LCD_DATA, 0x00);
+     exports.write(LCD_DATA, 0x00, true);
   exports.gotoXY(0, 0);     //Always start at home
 };
 
@@ -187,16 +217,16 @@ exports.scrollLength = function(array)
 exports.scrollInit = function(row)
 {
   var i;
-  exports.gotoXY(4,row);
+  exports.gotoXY(4,row,true);
   scrollPosition[row] = -10;
   for (i=0; i<11; i++)
-      exports.character(' ');
+      exports.character(' ', i<10);
 };
 
 exports.scroll = function( row ,message )
 {
   var i;
-  exports.gotoXY(4,row);
+  exports.gotoXY(4,row,true);
   for (i = scrollPosition[row]; i < scrollPosition[row] + 11; i++)
   {
     if ((i >= message.length) || (i < 0))
@@ -225,9 +255,9 @@ var curProgress = [0,0,0,0,0,0];   // internal storage for progress bar routines
 exports.progressInit = function (row)
 {
     var index;
-    exports.gotoXY(0,row);
+    exports.gotoXY(0,row,true);
     for(index = 0; index<12; index++)
-        exports.character(' ');
+        exports.character(' ',index<11);
     curProgress[row] = 0;
 };
 
@@ -240,17 +270,17 @@ exports.progressBar = function (row, value)
     if (value>80) value = 80;
       else if (value<0) value =0;
     
-    exports.gotoXY(2,row);
+    exports.gotoXY(2,row,true);
     if (value > curProgress[row])
     {
-       exports.gotoXY(2+curProgress[row],row);
+       exports.gotoXY(2+curProgress[row],row,true);
        for(index = curProgress[row]; index < value; index++)
-          exports.write(LCD_DATA, 0x7e);
+          exports.write(LCD_DATA, 0x7e, index-1<value);
     } else if (value < curProgress[row])
     {
-       exports.gotoXY(2+value,row);
+       exports.gotoXY(2+value,row, true);
        for(index = value; index<curProgress[row]; index++)
-          exports.write(LCD_DATA, 0x00);
+          exports.write(LCD_DATA, 0x00, index-1<curProgress[row]);
     }
 
     curProgress[row] = value;

@@ -4,6 +4,8 @@
 
 var lcd = require('./LCD_5110');
 var b = require('bonescript');
+var timeout = 0;
+var inverseIndex;
 
 //
 //  Must define the following outputs to use LCD_5110.js
@@ -15,16 +17,17 @@ lcd.PIN_DC = "P9_24";
 lcd.PIN_RESET = "P9_25";
 
 lcd.setup();
+setTimeout(loop, 0);
 
 function loop() {
 // test bitmap write
     lcd.clear();
     lcd.bitmap(beagle);
 
-    setTimeout(loop0, 1000);
+    inverseIndex = 0;
+    setTimeout(loop0, 1000*timeout);
 }
 
-var inverseIndex = 0;
 function loop0() {
 // test inverse video
     if(inverseIndex % 2) {
@@ -36,9 +39,9 @@ function loop0() {
     inverseIndex++;
 
     if(inverseIndex < 19) {
-        setTimeout(loop0, 50);
+        setTimeout(loop0, 50*timeout);
     } else {
-        setTimeout(loop1, 50);
+        setTimeout(loop1, 50*timeout);
     }
 }
 
@@ -48,7 +51,7 @@ function loop1() {
     for ( index = 0x41 ; index < 0x7b ; index++)
         lcd.character(String.fromCharCode(index));
 
-    setTimeout(loop2, 2000);
+    setTimeout(loop2, 2000*timeout);
 }
 
 function loop2() {
@@ -56,7 +59,7 @@ function loop2() {
     lcd.clear();
     lcd.bitmap(world_map);
 
-    setTimeout(loop3, 1000);
+    setTimeout(loop3, 1000*timeout);
 }
 
 function loop3() {
@@ -70,7 +73,7 @@ function loop3() {
         lcd.string('hello world!');
     }
 
-    setTimeout(loop4, 1000);
+    setTimeout(loop4, 0);
 }
 
 function loop4() {
@@ -93,7 +96,7 @@ function loop4() {
     }
     lcd.scrollInit(3);  // used to clear row
 
-    setTimeout(loop5, 2000);
+    setTimeout(loop5, 2000*timeout);
 }
 
 function loop5() {
@@ -114,7 +117,7 @@ function loop5() {
     for (index=100; index>=0; index-=6)
       lcd.progressBar(2,index);
 
-    setTimeout(loop, 2000);
+    if(timeout) setTimeout(loop, 2000);
 }
 
 var beagle = [
@@ -212,6 +215,4 @@ var world_map = [
  0x0F, 0x07, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
  0x00, 0x00, 0x00, 0x00, 0x06, 0x0E, 0x0F, 0x0F, 0x0F, 0x0F, 0x1F, 0x5E, 0x0C, 0x00, 0x00,
  0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ]; 
-
-loop();
 
