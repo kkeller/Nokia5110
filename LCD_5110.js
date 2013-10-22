@@ -111,12 +111,10 @@ var lastX = undefined;
 var lastY = undefined;
 exports.gotoXY = function(x, y, backToBack) 
 {
-    if(x != lastX) {
-        exports.write(LCD_COMMAND, 0x80 | x, backToBack || y != lastY);  // Column
-        lastX = x;
-    }
-    if(y != lastY) {
+    if(x != lastX || y != lastY) {
+        exports.write(LCD_COMMAND, 0x80 | x, true);  // Column
         exports.write(LCD_COMMAND, 0x40 | y, backToBack);  // Row
+        lastX = x;
         lastY = y;
     }
 };
