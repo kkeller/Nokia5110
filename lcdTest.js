@@ -2,104 +2,123 @@
 // Copyright (C) 2012 - Cabin Programs, Ken Keller 
 //
 
-var bb = require('./bonescript');
-var lcd = require('./LCD_5110.js');
+var lcd = require('./LCD_5110');
+var b = require('bonescript');
+var timeout = 0;
+var inverseIndex;
 
 //
 //  Must define the following outputs to use LCD_5110.js
 //
-PIN_SCLK = exports.PIN_SCLK = bone.P8_5;
-PIN_SDIN = exports.PIN_SDIN = bone.P8_3;
-PIN_DC = exports.PIN_DC = bone.P8_12;
-PIN_SCE = exports.PIN_SCE = bone.P8_6;
-PIN_RESET = exports.PIN_RESET = bone.P8_11;
+lcd.PIN_SDIN = "P9_21";
+lcd.PIN_SCLK = "P9_22";
+lcd.PIN_SCE = "P9_23";
+lcd.PIN_DC = "P9_24";
+lcd.PIN_RESET = "P9_25";
 
-setup = function() 
-{
-    //Reset and set up LCD 
-    lcdSetup();
-};
+lcd.setup();
+setTimeout(loop, 0);
 
-loop = function() {
+function loop() {
+// test bitmap write
+    lcd.clear();
+    lcd.bitmap(beagle);
 
+    inverseIndex = 0;
+    setTimeout(loop0, 1000*timeout);
+}
+
+function loop0() {
+// test inverse video
+    if(inverseIndex % 2) {
+         lcd.inverse(lcd.LCD_INVERSE);
+    } else {
+         lcd.inverse(lcd.LCD_NORMAL);
+    }
+
+    inverseIndex++;
+
+    if(inverseIndex < 19) {
+        setTimeout(loop0, 50*timeout);
+    } else {
+        setTimeout(loop1, 50*timeout);
+    }
+}
+
+function loop1() {
+// test normal character write
+    lcd.clear();
+    for ( index = 0x41 ; index < 0x7b ; index++)
+        lcd.character(String.fromCharCode(index));
+
+    setTimeout(loop2, 2000*timeout);
+}
+
+function loop2() {
+// test bitmap and string write
+    lcd.clear();
+    lcd.bitmap(world_map);
+
+    setTimeout(loop3, 1000*timeout);
+}
+
+function loop3() {
     var index;
 
-//  test bitmap write
-    lcdClear();
-    lcdBitmap(beagle);
-
-// test inverse video
-    delay(1000);
-    for (index = 0; index <10; index++)
-    {
-         lcdInverse(LCD_INVERSE);
-         delay(50);
-         lcdInverse(LCD_NORMAL);
-         delay(50);
-    }
-
-// test normal character write
-    lcdClear();
-    for ( index = 0x41 ; index < 0x7b ; index++)
-        lcdCharacter(String.fromCharCode(index));
-
-    delay(2000);
-
-// test bitmap and string write
-    lcdClear();
-    lcdBitmap(world_map);
-
-    delay(1000);
     for (index=0; index<5; index++)
     {
-        lcdGotoXY(0, 3);
-        lcdString('HELLO WORLD!');
-        lcdGotoXY(0, 3);
-        lcdString('hello world!');
+        lcd.gotoXY(0, 3);
+        lcd.string('HELLO WORLD!');
+        lcd.gotoXY(0, 3);
+        lcd.string('hello world!');
     }
 
-    delay(1000);
+    setTimeout(loop4, 0);
+}
+
+function loop4() {
+    var index;
 
 // test solid block character 
-    lcdClear();
+    lcd.clear();
     for ( index = 0 ; index < 72 ; index++)
-        lcdCharacter(String.fromCharCode(0x7f));
+        lcd.character(String.fromCharCode(0x7f));
 
 // Scrolling text test
-    lcdClear();
+    lcd.clear();
     var theTEXT = "Scroll text...";
-    var numScrolls = lcdScrollLength(theTEXT) * 2;
+    var numScrolls = lcd.scrollLength(theTEXT) * 2;
     
-    lcdScrollInit(3);
+    lcd.scrollInit(3);
     for (index=0; index<numScrolls; index++)
     {
-        lcdScroll(3,theTEXT);
+        lcd.scroll(3,theTEXT);
     }
-    lcdScrollInit(3);  // used to clear row
-    delay(2000);
+    lcd.scrollInit(3);  // used to clear row
+
+    setTimeout(loop5, 2000*timeout);
+}
+
+function loop5() {
+    var index;
 
 //  Progress Bar test
-    lcdGotoXY(0,0);
-    lcdString("Progress Bar");
+    lcd.gotoXY(0,0);
+    lcd.string("Progress Bar");
 
-    lcdProgressInit(2);
+    lcd.progressInit(2);
     for (index=0; index<101; index+=2)
-      lcdProgressBar(2,index);
+      lcd.progressBar(2,index);
 
     for (index=100; index>=0; index-=2)
-      lcdProgressBar(2,index);
+      lcd.progressBar(2,index);
 
-    lcdProgressInit(2);
+    lcd.progressInit(2);
     for (index=100; index>=0; index-=6)
-      lcdProgressBar(2,index);
+      lcd.progressBar(2,index);
 
-    delay(2000);
-
-    lcdClear();
-
-};
-
-bb.run( );
+    if(timeout) setTimeout(loop, 2000);
+}
 
 var beagle = [
 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
@@ -196,5 +215,4 @@ var world_map = [
  0x0F, 0x07, 0x00, 0x00, 0x03, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
  0x00, 0x00, 0x00, 0x00, 0x06, 0x0E, 0x0F, 0x0F, 0x0F, 0x0F, 0x1F, 0x5E, 0x0C, 0x00, 0x00,
  0x00, 0x80, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 ]; 
-
 

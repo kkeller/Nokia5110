@@ -5,7 +5,7 @@
 // and http://blog.stuartlewis.com/2011/02/12/scrolling-text-with-an-arduino-and-nokia-5110-screen/
 //
 
-var bb = require('./bonescript');
+var b = require('bonescript');
 
 //
 //  Must define the following outputs in your program to use LCD_5110.js
@@ -20,112 +20,117 @@ var bb = require('./bonescript');
 //
 //  used in lcdInverse(mode)
 //
-LCD_INVERSE = exports.LCD_INVERSE = 0;
-LCD_NORMAL = exports.LCD_NORMAL = 1;
+var LCD_INVERSE = exports.LCD_INVERSE = 0;
+var LCD_NORMAL = exports.LCD_NORMAL = 1;
 
 //
 // used internally - size of display in pixels
 //
-LCD_X = exports.LCD_X = 84;
-LCD_Y = exports.LCD_Y = 48;
+var LCD_X = exports.LCD_X = 84;
+var LCD_Y = exports.LCD_Y = 48;
 
 //
 // used in: lcdWrite(command, data)
 //
-LCD_COMMAND = exports.LCD_COMMAND = 0;
-LCD_DATA = exports.LCD_DATA = 1;
-
-//
-// used in: shiftOut(dataPin, clockPin, bitOrder, val)
-//
-LSBFIRST = 1;
-MSBFIRST = 0;
-
-//
-// shiftOut(dataPin, clockPin, bitOrder, val)
-//
-shiftOut = function(dataPin, clockPin, bitOrder, val)
-{
-  var i;
-  var bit;
-  for (i = 0; i < 8; i++)  
-  {
-    if (bitOrder == LSBFIRST) 
-    {
-         bit = val & (1 << i);
-    } else
-    {
-         bit = val & (1 << (7 - i));
-    }
-
-    digitalWrite(dataPin, bit);
-    digitalWrite(clockPin, HIGH);
-    digitalWrite(clockPin, LOW);            
-  }
-};
+var LCD_COMMAND = exports.LCD_COMMAND = 0;
+var LCD_DATA = exports.LCD_DATA = 1;
 
 //
 // lcdSetup ()
 //     reset lcd ancd set up set up display contrast and bias
 //
-lcdSetup = exports.lcdSetup = function() 
+exports.setup = function() 
 {
-    pinMode(PIN_SCLK, OUTPUT);
-    pinMode(PIN_SDIN, OUTPUT);
-    pinMode(PIN_DC, OUTPUT);
-    pinMode(PIN_SCE, OUTPUT);
-    pinMode(PIN_RESET, OUTPUT);
+    //console.log("PIN_SCLK = " + this.PIN_SCLK);
+    //console.log("PIN_SDIN = " + this.PIN_SDIN);
+    //console.log("PIN_DC = " + this.PIN_DC);
+    //console.log("PIN_SCE = " + this.PIN_SCE);
+    //console.log("PIN_RESET = " + this.PIN_RESET);
+
+    b.pinMode(this.PIN_SCLK, b.OUTPUT);
+    b.pinMode(this.PIN_SDIN, b.OUTPUT);
+    b.pinMode(this.PIN_DC, b.OUTPUT);
+    b.pinMode(this.PIN_SCE, b.OUTPUT);
+    b.pinMode(this.PIN_RESET, b.OUTPUT);
 
     //Reset the LCD to a known state
-    digitalWrite(PIN_RESET, LOW);
-    digitalWrite(PIN_RESET, HIGH);
+    b.digitalWrite(this.PIN_RESET, b.LOW);
+    b.digitalWrite(this.PIN_RESET, b.HIGH);
 
-    lcdWrite(LCD_COMMAND, 0x21); 
-    lcdWrite(LCD_COMMAND, 0xB1); 
-    lcdWrite(LCD_COMMAND, 0x04); 
-    lcdWrite(LCD_COMMAND, 0x15); 
+    exports.write(LCD_COMMAND, 0x21, true); 
+    exports.write(LCD_COMMAND, 0xB1, true); 
+    exports.write(LCD_COMMAND, 0x04, true); 
+    exports.write(LCD_COMMAND, 0x15, true); 
 
-    lcdWrite(LCD_COMMAND, 0x20); 
-    lcdWrite(LCD_COMMAND, 0x0C); 
-
+    exports.write(LCD_COMMAND, 0x20, true); 
+    exports.write(LCD_COMMAND, 0x0C); 
 };
 
 //
 // lcdWrite(dataORcommand, data)
 //      Write dataor command to lcd
 //
-lcdWrite = exports.lcdWrite = function(dataORcommand, data) 
+var lastDC = undefined;
+var lastSCE = undefined;
+exports.write = function(dataORcommand, data, backToBack) 
 {
-    digitalWrite(PIN_DC, dataORcommand); //Tell the LCD that we are writing either to data or a command
+    //backToBack = false;
+    //console.log("write("+dataORcommand+","+data+")");
+    if(lastDC != dataORcommand) {
+        b.digitalWrite(this.PIN_DC, dataORcommand); //Tell the LCD that we are writing either to data or a command
+        lastDC = dataORcommand;
+    }
+
+    if(dataORcommand == LCD_DATA) {
+        if(typeof lastX !== 'undefined' && typeof lastY !== 'undefined') {
+            lastX++;
+            if(lastX == LCD_X) {
+                lastX = 0;
+                lastY++;
+                if(lastY == LCD_Y) lastY = 0;
+            }
+        }
+    }
 
     //Send the data
-    digitalWrite(PIN_SCE, LOW);
-    shiftOut(PIN_SDIN, PIN_SCLK, MSBFIRST, data);
-    digitalWrite(PIN_SCE, HIGH);
+    if(!backToBack || lastSCE != b.LOW) {
+        b.digitalWrite(this.PIN_SCE, b.LOW);
+    }
+    b.shiftOut(this.PIN_SDIN, this.PIN_SCLK, b.MSBFIRST, data);
+    if(!backToBack) {
+        b.digitalWrite(this.PIN_SCE, b.HIGH);
+        lastSCE = b.HIGH;
+    }
 };
 
 //
-// lcdGotoXY( column,  row)
+// lcdGotoXY(column, row)
 //     set current lcd position to row/column
 //
-lcdGotoXY = exports.lcdGotoXY = function( x,  y) 
+var lastX = undefined;
+var lastY = undefined;
+exports.gotoXY = function(x, y, backToBack) 
 {
-   lcdWrite(LCD_COMMAND, 0x80 | x);  // Column
-   lcdWrite(LCD_COMMAND, 0x40 | y);  // Row
+    if(x != lastX || y != lastY) {
+        exports.write(LCD_COMMAND, 0x80 | x, true);  // Column
+        exports.write(LCD_COMMAND, 0x40 | y, backToBack);  // Row
+        lastX = x;
+        lastY = y;
+    }
 };
 
 //
 // lcdInverse(mode)
 //    turn inverse mode on or off
 //
-lcdInverse = exports.lcdInverse = function(invert)
+exports.inverse = function(invert)
 {
     if (invert == LCD_INVERSE)
     {
-        lcdWrite(LCD_COMMAND, 0x0D);  //set inverse mode
+        exports.write(LCD_COMMAND, 0x0D);  //set inverse mode
     } else
     {
-        lcdWrite(LCD_COMMAND, 0x0C);  //set normal mode
+        exports.write(LCD_COMMAND, 0x0C);  //set normal mode
     }
 };
 
@@ -133,13 +138,13 @@ lcdInverse = exports.lcdInverse = function(invert)
 // lcdBitmap(array)
 //    send bitmap to LCD at current position
 //
-lcdBitmap = exports.lcdBitmap = function(array)
+exports.bitmap = function(array)
 {
   var index;
   var amt = (LCD_X * LCD_Y ) / 8;
   if (array.length < amt) amt = array.length;
   for (index = 0 ; index < amt ; index++)
-     lcdWrite(LCD_DATA, array[index]);
+     exports.write(LCD_DATA, array[index], index - 1 < amt);
 };
 
 
@@ -147,33 +152,33 @@ lcdBitmap = exports.lcdBitmap = function(array)
 // lcdCharacter(char)
 //    outputs ASCII char (0x20 - 0x7f) at current position
 //
-lcdCharacter = exports.lcdCharacter = function(character) 
+exports.character = function(character, backToBack) 
 {
   var index;
   var char;
 
   char = character.charCodeAt(0);
 
-  if (char != 0x7f) lcdWrite(LCD_DATA, 0x00); //Blank vertical line padding
-     else lcdWrite(LCD_DATA, 0xff);           // make total black pixel
+  if (char != 0x7f) exports.write(LCD_DATA, 0x00, true); //Blank vertical line padding
+     else exports.write(LCD_DATA, 0xff, true);           // make total black pixel
 
   for ( index = 0 ; index < 5 ; index++)
-     lcdWrite(LCD_DATA, ascii[((char-0x20)*5)+index]);
+     exports.write(LCD_DATA, ascii[((char-0x20)*5)+index], true);
 
-  if (char != 0x7f) lcdWrite(LCD_DATA, 0x00); //Blank vertical line padding
-     else lcdWrite(LCD_DATA, 0xff);           // make total black pixel
+  if (char != 0x7f) exports.write(LCD_DATA, 0x00, backToBack); //Blank vertical line padding
+     else exports.write(LCD_DATA, 0xff, backToBack);           // make total black pixel
 };
 
 //
 // lcdString(string)
 //    outputs ASCII string (0x20 - 0x7f) at current position
 //
-lcdString = exports.lcdString = function(characters) 
+exports.string = function(characters) 
 {
   var index;
   for ( index = 0 ; index < characters.length ; index++)
   {
-      lcdCharacter(characters[index]);
+      exports.character(characters[index], index-1<characters.length);
   }
 };
 
@@ -182,15 +187,15 @@ lcdString = exports.lcdString = function(characters)
 //     clears lcd by sending spaces to the entire display
 //     leaves current position at (0,0)
 //
-lcdClear = exports.lcdClear = function() 
+exports.clear = function() 
 {
   var index;
   var amt;
-  lcdGotoXY(0, 0);
+  exports.gotoXY(0, 0, true);
   amt = (LCD_X * LCD_Y ) / 8
   for (index = 0 ; index < amt ; index++)
-     lcdWrite(LCD_DATA, 0x00);
-  lcdGotoXY(0, 0);     //Always start at home
+     exports.write(LCD_DATA, 0x00, true);
+  exports.gotoXY(0, 0);     //Always start at home
 };
 
 //
@@ -202,33 +207,33 @@ lcdClear = exports.lcdClear = function()
 
 var scrollPosition = [-10, -10, -10, -10, -10, -10] ;   // internal storage for scroll routines
 
-lcdScrollLength = exports.lcdScrollLength = function(array)
+exports.scrollLength = function(array)
 {
     return (array.length +10);
 };
 
-lcdScrollInit = exports.lcdScrollInit = function(row)
+exports.scrollInit = function(row)
 {
   var i;
-  lcdGotoXY(4,row);
+  exports.gotoXY(4,row,true);
   scrollPosition[row] = -10;
   for (i=0; i<11; i++)
-      lcdCharacter(' ');
+      exports.character(' ', i<10);
 };
 
-lcdScroll = exports.lcdScroll = function( row ,message )
+exports.scroll = function( row ,message )
 {
   var i;
-  lcdGotoXY(4,row);
+  exports.gotoXY(4,row,true);
   for (i = scrollPosition[row]; i < scrollPosition[row] + 11; i++)
   {
     if ((i >= message.length) || (i < 0))
     {
-      lcdCharacter(' ');
+      exports.character(' ');
     }
     else
     {
-      lcdCharacter(message.charAt(i));
+      exports.character(message.charAt(i));
     }
   }
   scrollPosition[row]++;
@@ -245,16 +250,16 @@ lcdScroll = exports.lcdScroll = function( row ,message )
 //                                     value from 0 to 100
 //
 var curProgress = [0,0,0,0,0,0];   // internal storage for progress bar routines
-lcdProgressInit = exports.lcdProgressInit = function (row)
+exports.progressInit = function (row)
 {
     var index;
-    lcdGotoXY(0,row);
+    exports.gotoXY(0,row,true);
     for(index = 0; index<12; index++)
-        lcdCharacter(' ');
+        exports.character(' ',index<11);
     curProgress[row] = 0;
 };
 
-lcdProgressBar = exports.lcdProgressBar = function (row, value)
+exports.progressBar = function (row, value)
 {
     var index;
 
@@ -263,17 +268,17 @@ lcdProgressBar = exports.lcdProgressBar = function (row, value)
     if (value>80) value = 80;
       else if (value<0) value =0;
     
-    lcdGotoXY(2,row);
+    exports.gotoXY(2,row,true);
     if (value > curProgress[row])
     {
-       lcdGotoXY(2+curProgress[row],row);
+       exports.gotoXY(2+curProgress[row],row,true);
        for(index = curProgress[row]; index < value; index++)
-          lcdWrite(LCD_DATA, 0x7e);
+          exports.write(LCD_DATA, 0x7e, index-1<value);
     } else if (value < curProgress[row])
     {
-       lcdGotoXY(2+value,row);
+       exports.gotoXY(2+value,row, true);
        for(index = value; index<curProgress[row]; index++)
-          lcdWrite(LCD_DATA, 0x00);
+          exports.write(LCD_DATA, 0x00, index-1<curProgress[row]);
     }
 
     curProgress[row] = value;
