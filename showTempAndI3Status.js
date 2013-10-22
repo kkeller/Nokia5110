@@ -1,4 +1,4 @@
-var lcd = require('./LCD_5110');
+var lcd = require('Nokia5110');
 var http = require('http');
 var b = require('bonescript');
 
@@ -69,7 +69,7 @@ function doI3Request() {
       if(space[1] != previousSpaceStatus) {
         console.log('SPACE: ' + space[1]);
         previousSpaceStatus = space[1];
-        var showSpace = (space[1].match(/(open|closed)/i))[0];
+        var showSpace = space[1].match(/(open|closed)/i);
         while(showSpace.length < 5) {
             showSpace = showSpace + " ";
         }

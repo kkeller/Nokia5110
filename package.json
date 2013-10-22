@@ -1,0 +1,21 @@
+{
+  "name": "Nokia5110",
+  "version": "0.0.1",
+  "description": "Nokia 5110 LCD interface library for BeagleBone",
+  "main": "LCD_5110.js",
+  "scripts": {
+    "test": "node lcdTest.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/KKeller/Nokia5110.git"
+  },
+  "keywords": [
+    "BeagleBone",
+    "LCD"
+  ],
+  "author": "Ken Keller",
+  "license": "BSD",
+  "readmeFilename": "README.txt",
+  "gitHead": "39793e981d29538e8667b8f17b6fe1200ec8ea31"
+}
