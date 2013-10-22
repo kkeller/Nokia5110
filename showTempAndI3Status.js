@@ -69,7 +69,7 @@ function doI3Request() {
       if(space[1] != previousSpaceStatus) {
         console.log('SPACE: ' + space[1]);
         previousSpaceStatus = space[1];
-        var showSpace = space[1].match(/(open|closed)/i);
+        var showSpace = (space[1].match(/(open|closed)/i))[0];
         while(showSpace.length < 5) {
             showSpace = showSpace + " ";
         }
