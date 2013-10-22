@@ -1,6 +1,7 @@
 HISTORY:
 ========
 21 Feb 2012: Initial edit and release
+22 Oct 2013: Updated for BoneScript 0.2.4
 
 SUMMARY:
 ========
